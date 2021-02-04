@@ -8,7 +8,8 @@
 
 		<link rel="stylesheet" href="dist/reset.css">
 		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css" id="theme">
+		<link rel="stylesheet" href="dist/theme/night.css" id="theme">
+		<link rel="stylesheet" href="css/custom.css">
 
 		<!-- Theme used for syntax highlighted code -->
 		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
@@ -16,7 +17,12 @@
 	<body>
 		<div class="reveal">
 			<div class="slides">
-				<section>Slide 1</section>
+				<section data-background-image="img/super-mind.jpg" data-background-opacity="0.5">
+					<h3>Free your mind with JDBI</h3>
+					<p>using explicit SQL mappers...</p>
+					<p>...in enterprise applications</p>
+					<p style="font-size: 20px; margin-top: 8em; text-align: right">Maciej Małecki, Architecture Community, Capgemini 2021.</p>
+				</section>
 				<section>Slide 2</section>
 			</div>
 		</div>
@@ -31,7 +37,7 @@
 			// - https://revealjs.com/config/
 			Reveal.initialize({
 				hash: true,
-
+				navigationMode: 'linear',
 				// Learn about plugins: https://revealjs.com/plugins/
 				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
 			});
