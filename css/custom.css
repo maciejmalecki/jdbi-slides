@@ -1,0 +1,46 @@
+.reveal .emph {
+    text-transform: uppercase;
+}
+
+.reveal .pane {
+    border-radius: 0.3em;
+    text-align: center;
+    padding: 0.3em;
+    margin: 0.3em;
+}
+
+.reveal img.pane {
+    border-radius: 0.3em;
+    padding: 0;
+    margin: 0.3em;
+    object-fit: cover;
+}
+
+.reveal .bcol0 {
+    background-color: burlywood;
+    color: black;
+}
+.reveal .bcol1 {
+    background-color: indianred;
+    color: black;
+}
+.reveal .bcol2 {
+    background-color: darkseagreen;
+    color: black;
+}
+.reveal .bcol3 {
+    background-color: dodgerblue;
+    color: black;
+}
+.reveal .bcol4 {
+    background-color: darkcyan;
+    color: black;
+}
+
+.reveal .hmed {
+    height: 200px;
+}
+
+.reveal .hsmall {
+    height: 120px;
+}

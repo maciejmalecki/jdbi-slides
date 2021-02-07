@@ -35,18 +35,69 @@
     <!-- ----------------------------------------
                Introduction
     ----------------------------------------- -->
-    <section>
-      <p>standard approach, but why? - hidden complexity, common problems, getters, setters</p>
+    <section data-background-image="img/clean-architecture.jpeg">
     </section>
-    <section>
-      <p>where our DB usually lays (by architecture)</p>
+    <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+      <h2 data-id="title">Why?</h2>
+      <div class="r-hstack">
+        <img data-id="img" class="pane" src="img/hibernate-logo.png" alt="Hibernate Logo" style="margin: 0 0.8em 0 0.8em;">
+        <div class="r-vstack">
+          <div class="pane bcol0">1: SQL-PoJo binding</div>
+          <div class="pane bcol1">2: SQL dialect agnostic</div>
+          <div class="pane bcol2">3: transparent persistence</div>
+        </div>
+      </div>
     </section>
-    <section>
-      <p>what are the SQL mappers?</p>
-      <p>JOOQ, JDBI, R2DBC, Spring JDBC Template, plain JDBC...</p>
+    <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+      <h2 data-id="title">Transparent persistence</h2>
+      <div class="r-hstack">
+        <div class="r-vstack fragment">
+          <div class="pane bcol0">change detection</div>
+          <div class="r-hstack">
+            <div class="pane bcol1">n+1</div>
+            <div class="pane bcol2">proxies</div>
+          </div>
+          <div class="pane bcol3">associations</div>
+          <div class="pane bcol4">no boundaries</div>
+        </div>
+        <img data-id="img" class="pane" src="img/hibernate-logo.png" alt="Hibernate Logo" style="margin: 0 0.8em 0 0.8em;">
+        <div class="r-vstack fragment">
+          <div class="pane bcol1">fetching strategies</div>
+          <div class="pane bcol2">entity graphs</div>
+          <div class="pane bcol3">stateful session</div>
+        </div>
+      </div>
+      <p class="fragment emph">&#8687;&#8687;&#8687; hidden complexity &#8687;&#8687;&#8687;</p>
     </section>
-    <section>
-      <p>when should I prefer mapper instead of JPA/Hibernate?</p>
+    <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+      <h3 data-id="title">What are the SQL mappers?</h3>
+      <div class="r-vstack">
+        <div class="r-hstack">
+          <img class="pane hsmall" src="img/jooq-logo-white.png" alt="JOOQ">
+          <img data-id="jdbi-img" class="pane hsmall" src="img/jdbi.png" alt="JDBI">
+          <img class="pane hsmall" src="img/spring-jdbc-logo.jpg" alt="spring">
+        </div>
+        <div class="r-hstack">
+          <img class="pane" src="img/r2dbc.png" alt="r2dbc">
+          <img class="pane hsmall" src="img/jdbc.png" alt="JDBC">
+        </div>
+      </div>
+    </section>
+    <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+      <h3 data-id="title">When should I prefer a mapper?</h3>
+      <div class="r-hstack">
+        <img data-id="jdbi-img" class="pane hmed" src="img/jdbi.png" alt="JDBI">
+        <div>
+          <ul>
+            <li>"read-only" app - dump data on screen</li>
+            <li>"write-only" app - data importers & updaters</li>
+            <li>CQRS</li>
+            <li>event sourcing</li>
+            <li>hexagonal</li>
+            <li>"small" apps of any kind</li>
+          </ul>
+        </div>
+      </div>
     </section>
 
     <!-- ----------------------------------------
@@ -283,6 +334,7 @@
         width: 1200,
         hash: true,
         navigationMode: 'linear',
+        slideNumber: 'c/t',
         // Learn about plugins: https://revealjs.com/plugins/
         plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
     });
