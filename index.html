@@ -53,11 +53,11 @@
       <div class="r-hstack">
         <div class="r-vstack fragment">
           <div class="pane bcol0">change detection</div>
+          <div class="pane bcol3">associations</div>
           <div class="r-hstack">
             <div class="pane bcol1">n+1</div>
             <div class="pane bcol2">proxies</div>
           </div>
-          <div class="pane bcol3">associations</div>
           <div class="pane bcol4">no boundaries</div>
         </div>
         <img data-id="img" class="pane" src="img/hibernate-logo.png" alt="Hibernate Logo" style="margin: 0 0.8em 0 0.8em;">
@@ -103,22 +103,84 @@
     <!-- ----------------------------------------
                JDBI Basics
     ----------------------------------------- -->
-    <section>
-      <p>What it is and how to set it up in Spring(boot)?</p>
+    <section data-auto-animate>
+      <div class="r-hstack">
+        <div class="r-vstack">
+          <div class="pane bcol0">SQL &#8621; POJO mapper</div>
+          <div class="pane bcol1">fluent and declarative API</div>
+          <div class="pane bcol2">wraps around JDBC</div>
+          <div class="pane bcol3">native SQL, no limits</div>
+          <div class="pane bcol4">no fake persistence</div>
+        </div>
+        <img data-id="jdbi-img" class="pane hmed" src="img/jdbi.png" alt="JDBI">
+      </div>
     </section>
     <section>
-      <p>Select + bean mapping</p>
+      <h3>JDBI</h3>
+      <p>example config in Spring/Kotlin</p>
+      <pre><code class="hljs" data-trim data-line-numbers="|3-5|13|14-17|21"><script type="text/template">
+        @Configuration
+        class JdbiConfiguration {
+          @Bean
+          @ConfigurationProperties(prefix = "spring.datasource")
+          fun dataSource() = DriverManagerDataSource()
+
+          @Bean
+          fun dataSourceTransactionManager() =
+            DataSourceTransactionManager(dataSource())
+
+          @Bean
+          fun jdbi(): Jdbi {
+            val jdbi = Jdbi.create(dataSource())
+              .installPlugin(SqlObjectPlugin())
+              .installPlugin(PostgresPlugin())
+              .installPlugin(KotlinPlugin())
+              .installPlugin(KotlinSqlObjectPlugin())
+
+              jdbi.getConfig(SqlStatements::class.java)
+                .isUnusedBindingAllowed = true
+              return jdbi
+          }
+        }
+      </script></code></pre>
     </section>
     <section>
-      <p>Insert/update/delete + count</p>
+      <h3>Simple SELECT</h3>
+      <pre><code class="hljs" data-trim data-line-numbers="|1|2|3|4|5 "><script type="text/template">
+      Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test");
+      List<User> users = jdbi.withHandle(handle -> {
+        return handle.createQuery("SELECT id, name FROM users ORDER BY name")
+                 .mapToBean(User.class)
+                 .list();
+      }
+      </script></code></pre>
+    </section>
+    <section>
+      <h3>Simple INSERT</h3>
+      <pre><code class="hljs" data-trim data-line-numbers="|1-2|3-4|5 "><script type="text/template">
+        int count = handle.createUpdate(
+                      "INSERT INTO users(id, name) VALUES (:id, :name)")
+                      .bind("id", 5)
+                      .bind("name", "foo")
+                      .execute();
+      </script></code></pre>
+    </section>
+    <section>
+      <h3>or bean mapped INSERT</h3>
+      <pre><code class="hljs" data-trim data-line-numbers="|1-2|3|4 "><script type="text/template">
+        int count = handle.createUpdate(
+                      "INSERT INTO users(id, name) VALUES (:id, :name)")
+                      .bindBean(new User(5, "foo")
+                      .execute();
+      </script></code></pre>
     </section>
 
     <!-- ----------------------------------------
                SQL Objects
     ----------------------------------------- -->
-    <section data-auto-animate>
-      <h3 data-id="code-title">SQL Object</h3>
-      <pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="|1|2-3|5-6|9-11"><script type="text/template">
+    <section>
+      <h3>SQL Object (kotlin)</h3>
+      <pre><code class="hljs" data-trim data-line-numbers="|1|2-3|5-6|9-11"><script type="text/template">
       interface ManufacturerDao {
         @SqlQuery("SELECT id, name FROM Manufacturers ORDER BY name")
         fun selectAll(): List<ManufacturerRec>
@@ -132,9 +194,9 @@
           val name: String)
       </script></code></pre>
     </section>
-    <section data-auto-animate>
-      <h3 data-id="code-title">SQL Objects</h3>
-      <pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="|2-11|4|5-10|13-22"><script type="text/template">
+    <section>
+      <h3>SQL Objects</h3>
+      <pre><code class="hljs" data-trim data-line-numbers="|2-11|4|5-10|13-22"><script type="text/template">
       class ManufacturerCrudJdbiRepository(private val db: Jdbi) : ManufacturerCrudRepository {
         override fun findAll(): List<Manufacturer> =
           db.withHandle<List<Manufacturer>, RuntimeException> { handle ->
@@ -164,9 +226,9 @@
       <p>Insert/update/delete + count</p>
       <p>Insert + keygen</p>
     </section>
-    <section data-auto-animate>
-      <h3 data-id="code-title">Find by criteria (Devonfw style)</h3>
-      <pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="|9-13|16-17|19-23"><script type="text/template">
+    <section>
+      <h3>Find by criteria (Devonfw style)</h3>
+      <pre><code class="hljs" data-trim data-line-numbers="|9-13|16-17|19-23"><script type="text/template">
       @SqlQuery("""
         SELECT
           items.name AS name, item_class_name, item_class_version,

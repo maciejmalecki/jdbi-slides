@@ -37,10 +37,12 @@
     color: black;
 }
 
+.reveal .hbig {
+    height: 250px;
+}
 .reveal .hmed {
     height: 200px;
 }
-
 .reveal .hsmall {
     height: 120px;
 }
