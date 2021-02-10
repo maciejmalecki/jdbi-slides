@@ -1,21 +1,20 @@
 .reveal .emph {
     text-transform: uppercase;
 }
-
+/* panes */
 .reveal .pane {
     border-radius: 0.3em;
     text-align: center;
     padding: 0.3em;
     margin: 0.3em;
 }
-
 .reveal img.pane {
     border-radius: 0.3em;
     padding: 0;
     margin: 0.3em;
     object-fit: cover;
 }
-
+/* bg colors */
 .reveal .bcol0 {
     background-color: burlywood;
     color: black;
@@ -36,7 +35,7 @@
     background-color: darkcyan;
     color: black;
 }
-
+/* vertical sizing */
 .reveal .hbig {
     height: 250px;
 }
@@ -45,4 +44,11 @@
 }
 .reveal .hsmall {
     height: 120px;
+}
+/* lists */
+.reveal ul {
+    list-style-type: none;
+}
+.reveal ul li:before {
+    content: '\21D2\A0';
 }

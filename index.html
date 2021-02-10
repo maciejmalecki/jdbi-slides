@@ -24,6 +24,9 @@
 <body>
 <div class="reveal">
   <div class="slides">
+    <!-- ----------------------------------------
+               Title slide
+    ----------------------------------------- -->
     <section data-background-image="img/super-mind.jpg" data-background-opacity="0.5">
       <h3>Free your mind with JDBI</h3>
       <p>using explicit SQL mappers...</p>
@@ -37,17 +40,19 @@
     ----------------------------------------- -->
     <section data-background-image="img/clean-architecture.jpeg">
     </section>
+
     <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
       <h2 data-id="title">Why?</h2>
       <div class="r-hstack">
         <img data-id="img" class="pane" src="img/hibernate-logo.png" alt="Hibernate Logo" style="margin: 0 0.8em 0 0.8em;">
         <div class="r-vstack">
-          <div class="pane bcol0">1: SQL-PoJo binding</div>
+          <div class="pane bcol0">1: SQL-POJO binding</div>
           <div class="pane bcol1">2: SQL dialect agnostic</div>
           <div class="pane bcol2">3: transparent persistence</div>
         </div>
       </div>
     </section>
+
     <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
       <h2 data-id="title">Transparent persistence</h2>
       <div class="r-hstack">
@@ -69,6 +74,7 @@
       </div>
       <p class="fragment emph">&#8687;&#8687;&#8687; hidden complexity &#8687;&#8687;&#8687;</p>
     </section>
+
     <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
       <h3 data-id="title">What are the SQL mappers?</h3>
       <div class="r-vstack">
@@ -79,22 +85,29 @@
         </div>
         <div class="r-hstack">
           <img class="pane" src="img/r2dbc.png" alt="r2dbc">
-          <img class="pane hsmall" src="img/jdbc.png" alt="JDBC">
+          <img class="pane hsmall fragment fade-out" data-fragment-index="2" src="img/jdbc.png" alt="JDBC">
         </div>
+        <div class="pane bcol0 fragment" data-fragment-index="1">1: SQL-POJO binding</div>
       </div>
     </section>
+
     <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
       <h3 data-id="title">When should I prefer a mapper?</h3>
       <div class="r-hstack">
-        <img data-id="jdbi-img" class="pane hmed" src="img/jdbi.png" alt="JDBI">
+        <div class="r-vstack">
+          <img class="pane hsmall" src="img/jooq-logo-white.png" alt="JOOQ">
+          <img class="pane hsmall" data-id="jdbi-img" src="img/jdbi.png" alt="JDBI">
+          <img class="pane hsmall" src="img/spring-jdbc-logo.jpg" alt="spring">
+        </div>
         <div>
           <ul>
             <li>"read-only" app - dump data on screen</li>
             <li>"write-only" app - data importers & updaters</li>
-            <li>CQRS</li>
-            <li>event sourcing</li>
-            <li>hexagonal</li>
-            <li>"small" apps of any kind</li>
+            <li class="fragment" data-fragment-index="1">CQRS</li>
+            <li class="fragment" data-fragment-index="1">event sourcing</li>
+            <li class="fragment" data-fragment-index="2">hexagonal</li>
+            <li class="fragment" data-fragment-index="2">DDD</li>
+            <li class="fragment" data-fragment-index="3">"small" apps of any kind</li>
           </ul>
         </div>
       </div>
@@ -107,12 +120,18 @@
       <div class="r-hstack">
         <div class="r-vstack">
           <div class="pane bcol0">SQL &#8621; POJO mapper</div>
-          <div class="pane bcol1">fluent and declarative API</div>
-          <div class="pane bcol2">wraps around JDBC</div>
-          <div class="pane bcol3">native SQL, no limits</div>
-          <div class="pane bcol4">no fake persistence</div>
+          <div class="pane bcol1">fluent APIdeclarative API</div>
+          <div class="pane bcol2">... or declarative API</div>
+          <div class="pane bcol3">wraps around JDBC</div>
         </div>
         <img data-id="jdbi-img" class="pane hmed" src="img/jdbi.png" alt="JDBI">
+        <div class="r-vstack">
+          <div class="pane bcol4">native SQL</div>
+          <div class="pane bcol3">no limitations</div>
+          <div class="pane bcol2">no fake persistence</div>
+          <div class="pane bcol1">get what you code</div>
+          <div class="pane bcol0">(and nothing more)</div>
+        </div>
       </div>
     </section>
     <section>
