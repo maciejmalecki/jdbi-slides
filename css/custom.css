@@ -52,3 +52,6 @@
 .reveal ul li:before {
     content: '\21D2\A0';
 }
+.reveal .small {
+    font-size: 0.7em;
+}

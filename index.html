@@ -134,59 +134,76 @@
         </div>
       </div>
     </section>
+
     <section>
       <h3>JDBI</h3>
-      <p>example config in Spring/Kotlin</p>
-      <pre><code class="hljs" data-trim data-line-numbers="|3-5|13|14-17|21"><script type="text/template">
+      <p class="small">example config in Spring</p>
+      <pre><code class="hljs" data-trim data-line-numbers><script type="text/template">
         @Configuration
-        class JdbiConfiguration {
+        public class JdbiConfiguration {
+          private dataSource: DataSource; // +lombok or constructor stuff
           @Bean
-          @ConfigurationProperties(prefix = "spring.datasource")
-          fun dataSource() = DriverManagerDataSource()
-
-          @Bean
-          fun dataSourceTransactionManager() =
-            DataSourceTransactionManager(dataSource())
-
-          @Bean
-          fun jdbi(): Jdbi {
-            val jdbi = Jdbi.create(dataSource())
-              .installPlugin(SqlObjectPlugin())
-              .installPlugin(PostgresPlugin())
-              .installPlugin(KotlinPlugin())
-              .installPlugin(KotlinSqlObjectPlugin())
-
-              jdbi.getConfig(SqlStatements::class.java)
-                .isUnusedBindingAllowed = true
-              return jdbi
+          public Jdbi jdbi() {
+            return Jdbi.create(dataSource).installPlugin(SqlObjectPlugin());
           }
         }
       </script></code></pre>
+      <p class="small fragment" data-fragment-index="1">... and the same in Spring/Kotlin</p>
+      <pre class="fragment" data-fragment-index="1"><code class="hljs" data-trim data-line-numbers><script type="text/template">
+        @Configuration
+        class JdbiConfiguration(private val dataSource: DataSource) {
+          @Bean
+          fun jdbi(): Jdbi = Jdbi.create(dataSource)
+                                 .installPlugin(SqlObjectPlugin())
+                                 .installPlugin(KotlinPlugin())
+                                 .installPlugin(KotlinSqlObjectPlugin())
+        }
+      </script></code></pre>
     </section>
+
     <section>
       <h3>Simple SELECT</h3>
-      <pre><code class="hljs" data-trim data-line-numbers="|1|2|3|4|5 "><script type="text/template">
-      Jdbi jdbi = Jdbi.create("jdbc:h2:mem:test");
-      List<User> users = jdbi.withHandle(handle -> {
-        return handle.createQuery("SELECT id, name FROM users ORDER BY name")
-                 .mapToBean(User.class)
-                 .list();
+      <pre><code class="hljs" data-trim data-line-numbers><script type="text/template">
+      public class UserRepository {
+        private final Jdbi jdbi; // <-- inject somehow
+        public List<User> findAllUsers() {
+          return jdbi.withHandle(handle ->
+            handle.createQuery("SELECT id, name FROM users ORDER BY name")
+                  .mapToBean(User.class)
+                  .list();
+        }
+      }
+      </script></code></pre>
+
+      <p class="small fragment" data-fragment-index="1">... and in Kotlin</p>
+      <pre class="fragment" data-fragment-index="1"><code class="hljs" data-trim data-line-numbers="|3|4|5|6"><script type="text/template">
+      class UserRepository(private val jdbi: Jdbi) {
+        fun findAllUsers(): List<User> =
+          jdbi.withHandle<List<User>, RuntimeException> { handle ->
+            handle.createQuery("SELECT id, name FROM users ORDER BY name")
+                  .mapToBean(User.class)
+                  .list();
       }
       </script></code></pre>
     </section>
+
     <section>
       <h3>Simple INSERT</h3>
-      <pre><code class="hljs" data-trim data-line-numbers="|1-2|3-4|5 "><script type="text/template">
+      <pre><code class="hljs" data-trim data-line-numbers><script type="text/template">
         int count = handle.createUpdate(
                       "INSERT INTO users(id, name) VALUES (:id, :name)")
                       .bind("id", 5)
                       .bind("name", "foo")
                       .execute();
       </script></code></pre>
-    </section>
-    <section>
-      <h3>or bean mapped INSERT</h3>
-      <pre><code class="hljs" data-trim data-line-numbers="|1-2|3|4 "><script type="text/template">
+      <p class="small fragment" data-fragment-index="1">or simply</p>
+      <pre class="fragment" data-fragment-index="1"><code class="hljs" data-trim data-line-numbers><script type="text/template">
+        int count = handle.createUpdate(
+                      "INSERT INTO users(id, name) VALUES (?, ?)", 5, "foo")
+                      .execute();
+      </script></code></pre>
+      <p class="small fragment" data-fragment-index="2">or bean mapped INSERT</p>
+      <pre class="fragment" data-fragment-index="2"><code class="hljs" data-trim data-line-numbers><script type="text/template">
         int count = handle.createUpdate(
                       "INSERT INTO users(id, name) VALUES (:id, :name)")
                       .bindBean(new User(5, "foo")
@@ -194,57 +211,88 @@
       </script></code></pre>
     </section>
 
+    <section>
+      <h3>Result beans</h3>
+      <pre><code class="hljs" data-trim data-line-numbers><script type="text/template">
+        public class User {
+          public User(long id, String name) {
+            // some Java nonsense
+          }
+          // some more nonsense
+        }
+      </script></code></pre>
+      <p class="small fragment" data-fragment-index="1">if names are excluded from the bytecode</p>
+      <pre class="fragment" data-fragment-index="1"><code class="hljs" data-trim data-line-numbers><script type="text/template">
+        public class User {
+          @ConstructorProperties({"id", "name"})
+          public User(long id, String name) {
+            // some Java nonsense
+          }
+          // some more nonsense
+        }
+      </script></code></pre>
+      <p class="small fragment" data-fragment-index="2">... or use Kotlin</p>
+      <pre class="fragment" data-fragment-index="2"><code class="hljs" data-trim data-line-numbers><script type="text/template">
+        data class User(val id: Long, val name: String)
+      </script></code></pre>
+    </section>
+
     <!-- ----------------------------------------
                SQL Objects
     ----------------------------------------- -->
     <section>
-      <h3>SQL Object (kotlin)</h3>
-      <pre><code class="hljs" data-trim data-line-numbers="|1|2-3|5-6|9-11"><script type="text/template">
+      <h3>SQL Object (Kotlin)</h3>
+      <pre><code class="hljs" data-trim data-line-numbers="|15|2-3|5-6|5-8|10-12"><script type="text/template">
       interface ManufacturerDao {
         @SqlQuery("SELECT id, name FROM Manufacturers ORDER BY name")
         fun selectAll(): List<ManufacturerRec>
 
         @SqlQuery("SELECT id, name FROM Manufacturers WHERE id=?")
         fun selectById(id: Long): ManufacturerRec?
+
+        fun getById(id: Long) = selectById(id) ?: NotFoundException()
+
+        @SqlUpdate("INSERT INTO Manufacturers (name) VALUES (:name)")
+        @GetGeneratedKeys("id")
+        fun insert(@BindBean manufacturer: ManufacturerRec): Long
       }
 
-      data class ManufacturerRec(
-          val id: Long,
-          val name: String)
+      data class ManufacturerRec(val id: Long?, val name: String)
       </script></code></pre>
     </section>
+
     <section>
       <h3>SQL Objects</h3>
-      <pre><code class="hljs" data-trim data-line-numbers="|2-11|4|5-10|13-22"><script type="text/template">
-      class ManufacturerCrudJdbiRepository(private val db: Jdbi) : ManufacturerCrudRepository {
-        override fun findAll(): List<Manufacturer> =
+      <pre><code class="hljs" data-trim data-line-numbers="|2-6|4|5|8-14|10|11-13|16-21"><script type="text/template">
+      class ManufacturerRepository(private val db: Jdbi) {
+        fun findAll(): List<Manufacturer> =
           db.withHandle<List<Manufacturer>, RuntimeException> { handle ->
             val dao = handle.attach(ManufacturerDao::class.java)
-            dao.selectAll().map {
-                Manufacturer(
-                    id = ManufacturerAppId(it.id),
-                    name = it.name
-                )
+            dao.selectAll().map { Manufacturer(ManufacturerAppId(it.id), it.name) }
+          }
+
+        fun findById(id: ManufacturerId): Manufacturer? =
+          db.withHandle<Manufacturer?, RuntimeException> { handle ->
+            val dao = handle.attach(ManufacturerDao::class.java)
+            dao.selectById(id.asAppId().id)?.let {
+              Manufacturer(ManufacturerAppId(it.id), it.name)
             }
           }
 
-        override fun findById(id: ManufacturerId): Manufacturer? =
-          db.withHandle<Manufacturer?, RuntimeException> { handle ->
+        fun persist(manufacturer: Manufacturer): Manufacturer =
+          db.inTransaction<Manufacturer, RuntimeException> { handle ->
             val dao = handle.attach(ManufacturerDao::class.java)
-            dao.selectById(id.asAppId().id)?.let { rec ->
-                Manufacturer(
-                    id = ManufacturerAppId(rec.id),
-                    name = rec.name
-                )
-            }
-          }
+            val id = dao.insert(ManufacturerRec(null, manufacturer.name)
+            Manufacturer(ManufacturerAppId(id)), manufacturer.name)
+        }
       }
       </script></code></pre>
     </section>
+
     <section>
-      <p>Insert/update/delete + count</p>
-      <p>Insert + keygen</p>
+      <p>Templating - select IN</p>
     </section>
+
     <section>
       <h3>Find by criteria (Devonfw style)</h3>
       <pre><code class="hljs" data-trim data-line-numbers="|9-13|16-17|19-23"><script type="text/template">
@@ -279,6 +327,9 @@
                    Advanced topics:
           persistence of entities and aggregates
     ----------------------------------------- -->
+    <section>
+      <p>INTRO: explicit architecture for apps with databases</p>
+    </section>
     <section>
       <p>Select with complex aggregate</p>
     </section>
