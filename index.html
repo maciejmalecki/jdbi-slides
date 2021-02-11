@@ -38,9 +38,6 @@
     <!-- ----------------------------------------
                Introduction
     ----------------------------------------- -->
-    <section data-background-image="img/clean-architecture.jpeg">
-    </section>
-
     <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
       <h2 data-id="title">Why?</h2>
       <div class="r-hstack">
@@ -149,7 +146,7 @@
         }
       </script></code></pre>
       <p class="small fragment" data-fragment-index="1">... and the same in Spring/Kotlin</p>
-      <pre class="fragment" data-fragment-index="1"><code class="hljs" data-trim data-line-numbers><script type="text/template">
+      <pre class="fragment kotlin" data-fragment-index="1"><code class="hljs" data-trim data-line-numbers><script type="text/template">
         @Configuration
         class JdbiConfiguration(private val dataSource: DataSource) {
           @Bean
@@ -176,7 +173,7 @@
       </script></code></pre>
 
       <p class="small fragment" data-fragment-index="1">... and in Kotlin</p>
-      <pre class="fragment" data-fragment-index="1"><code class="hljs" data-trim data-line-numbers="|3|4|5|6"><script type="text/template">
+      <pre class="fragment kotlin" data-fragment-index="1"><code class="hljs" data-trim data-line-numbers><script type="text/template">
       class UserRepository(private val jdbi: Jdbi) {
         fun findAllUsers(): List<User> =
           jdbi.withHandle<List<User>, RuntimeException> { handle ->
@@ -232,7 +229,7 @@
         }
       </script></code></pre>
       <p class="small fragment" data-fragment-index="2">... or use Kotlin</p>
-      <pre class="fragment" data-fragment-index="2"><code class="hljs" data-trim data-line-numbers><script type="text/template">
+      <pre class="fragment kotlin" data-fragment-index="2"><code class="hljs" data-trim data-line-numbers><script type="text/template">
         data class User(val id: Long, val name: String)
       </script></code></pre>
     </section>
@@ -242,7 +239,7 @@
     ----------------------------------------- -->
     <section>
       <h3>SQL Object (Kotlin)</h3>
-      <pre><code class="hljs" data-trim data-line-numbers="|15|2-3|5-6|5-8|10-12"><script type="text/template">
+      <pre class="kotlin"><code class="hljs" data-trim data-line-numbers="|15|2-3|5-6|5-8|10-12"><script type="text/template">
       interface ManufacturerDao {
         @SqlQuery("SELECT id, name FROM Manufacturers ORDER BY name")
         fun selectAll(): List<ManufacturerRec>
@@ -263,18 +260,18 @@
 
     <section>
       <h3>SQL Objects</h3>
-      <pre><code class="hljs" data-trim data-line-numbers="|2-6|4|5|8-14|10|11-13|16-21"><script type="text/template">
+      <pre><code class="hljs kotlin" data-trim data-line-numbers="|2-6|4|5|8-14|10|11-13|16-21"><script type="text/template">
       class ManufacturerRepository(private val db: Jdbi) {
         fun findAll(): List<Manufacturer> =
           db.withHandle<List<Manufacturer>, RuntimeException> { handle ->
             val dao = handle.attach(ManufacturerDao::class.java)
-            dao.selectAll().map { Manufacturer(ManufacturerAppId(it.id), it.name) }
+            dao.selectAll().map { Manufacturer(it.id, it.name) }
           }
 
-        fun findById(id: ManufacturerId): Manufacturer? =
+        fun findById(id: Long): Manufacturer? =
           db.withHandle<Manufacturer?, RuntimeException> { handle ->
             val dao = handle.attach(ManufacturerDao::class.java)
-            dao.selectById(id.asAppId().id)?.let {
+            dao.selectById(id)?.let {
               Manufacturer(ManufacturerAppId(it.id), it.name)
             }
           }
@@ -283,43 +280,42 @@
           db.inTransaction<Manufacturer, RuntimeException> { handle ->
             val dao = handle.attach(ManufacturerDao::class.java)
             val id = dao.insert(ManufacturerRec(null, manufacturer.name)
-            Manufacturer(ManufacturerAppId(id)), manufacturer.name)
+            Manufacturer(id, manufacturer.name)
         }
       }
       </script></code></pre>
     </section>
 
     <section>
-      <p>Templating - select IN</p>
-    </section>
-
-    <section>
-      <h3>Find by criteria (Devonfw style)</h3>
-      <pre><code class="hljs" data-trim data-line-numbers="|9-13|16-17|19-23"><script type="text/template">
+      <h3>Templating</h3>
+      <p class="small">Find by criteria (Devonfw style)</p>
+      <pre class="kotlin"><code class="hljs" data-trim data-line-numbers="|9-13|16-24|16-26"><script type="text/template">
       @SqlQuery("""
         SELECT
           items.name AS name, item_class_name, item_class_version,
           manufacturer_id, manufacturers.name AS manufacturer_name,
-          manufacturers_code
+          manufacturers_code AS code
         FROM Items
         LEFT OUTER JOIN Manufacturers ON items.manufacturer_id = manufacturers.id
         WHERE
           1=1
           <if(name)>AND items.name LIKE :name<endif>
-          <if(manufacturersCode)>AND manufacturers_code LIKE :manufacturersCode<endif>
-          <if(manufacturerIds)>AND manufacturer_id IN (<manufacturerIds>)<endif>
+          <if(code)>AND manufacturers_code LIKE :code<endif>
+          <if(ids)>AND manufacturer_id IN (<ids>)<endif>
           <if(itemClassIds)>AND item_class_name IN (<itemClassIds>)<endif>
         ORDER BY name"""
       )
       @DefineNamedBindings
       @UseStringTemplateEngine
       fun selectItemsByCriteria(
-        @BindBean criteria: ItemSearchJdbiCriteria,
+        @BindBean criteria: ItemSearchCriteria,
         @BindList("manufacturerIds", onEmpty = BindList.EmptyHandling.NULL_VALUE)
-          manufacturerIds: List<Long>?,
+          ids: List<Long>?,
         @BindList("itemClassIds", onEmpty = BindList.EmptyHandling.NULL_VALUE)
           itemClassIds: List<String>?
       ): List<ItemWithManufacturerRec>
+
+      data class ItemSearchCriteria(val name: String?, val code: String?)
 			</script></code></pre>
     </section>
 
@@ -328,8 +324,39 @@
           persistence of entities and aggregates
     ----------------------------------------- -->
     <section>
-      <p>INTRO: explicit architecture for apps with databases</p>
+      <h1>what if I can replace ORM completely?</h1>
     </section>
+
+    <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+      <div class="r-vstack">
+        <div data-id="arch-infra"
+             style="background-color: #FFFFFF; width: 15em; height: 1.5em;"></div>
+        <p class="small">&darr;</p>
+        <div data-id="arch-app"
+             style="background-color: #FF55FF; width: 15em; height: 1.5em;"></div>
+        <p class="small">&darr;</p>
+        <div data-id="arch-domain"
+             style="background-color: #55FFFF; width: 15em; height: 1.5em;"></div>
+        <p class="small">&darr;</p>
+        <img data-id="arch-db" src="img/db.jpg" alt="db" style="height: 6em;">
+      </div>
+    </section>
+
+    <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)" data-transition="fade">
+      <div class="r-hstack">
+        <div class="r-stack">
+          <div data-id="arch-infra" style="background-color: #FFFFFF; width: 300px; height: 300px; border-radius: 200px;"></div>
+          <div data-id="arch-app" style="background-color: #FF55FF; width: 200px; height: 200px; border-radius: 200px;"></div>
+          <div data-id="arch-domain" style="background-color: #55FFFF; width: 100px; height: 100px; border-radius: 200px;"></div>
+        </div>
+        <p>&harr;</p>
+        <img data-id="arch-db" src="img/db.jpg" alt="db" style="height: 4em;">
+      </div>
+    </section>
+
+    <section data-background-image="img/clean-architecture.jpeg">
+    </section>
+
     <section>
       <p>Select with complex aggregate</p>
     </section>
@@ -342,9 +369,9 @@
     <section>
       <p>Update & command pattern</p>
     </section>
-    <section data-auto-animate>
-      <h3 data-id="code-title">DAO for Item Stock aggregate</h3>
-      <pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="|2-5|7-12|34-38|21-31|40-47"><script type="text/template">
+    <section>
+      <h3>DAO for Item Stock aggregate</h3>
+      <pre class="kotlin"><code class="hljs" data-trim data-line-numbers="|2-5|7-12|34-38|21-31|40-47"><script type="text/template">
       interface ItemStockDao {
         @SqlUpdate("""
           INSERT INTO Item_Stock (item_name, serial, amount)
@@ -395,7 +422,7 @@
 					</script></code></pre>
     </section>
     <section>
-      <pre data-id="code-animation"><code class="hljs" data-trim data-line-numbers="|3-11|5|6|7|8-10|27|30-31|33-36|37-40"><script type="text/template">
+      <pre class="kotlin"><code class="hljs" data-trim data-line-numbers="|3-11|5|6|7|8-10|27|30-31|33-36|37-40"><script type="text/template">
       class ItemStockJdbiRepository(private val db: Jdbi) : ItemStockRepository {
 
         override fun findByItemId(itemId: ItemId): ItemStock =
