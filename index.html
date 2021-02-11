@@ -320,8 +320,7 @@
     </section>
 
     <!-- ----------------------------------------
-                   Advanced topics:
-          persistence of entities and aggregates
+                   Replace ORM?
     ----------------------------------------- -->
     <section>
       <h1>what if I can replace ORM completely?</h1>
@@ -357,118 +356,59 @@
     <section data-background-image="img/clean-architecture.jpeg">
     </section>
 
+    <!-- ----------------------------------------
+                   Advanced topics:
+          persistence of entities and aggregates
+    ----------------------------------------- -->
     <section>
-      <p>Select with complex aggregate</p>
+      <h3>Entity & event sourcing</h3>
+      <pre class="kotlin"><code class="hljs" data-trim><script type="text/template">
+      data class ItemStock(val id: String, val serial: Int, val amount: BigDecimal)
+      </script></code></pre>
+      <img src="img/item_stock.png" alt="Item stock" style="height: 100px;">
+      <pre class="fragment"><code class="hljs" data-trim><script type="text/template">
+        CREATE TABLE Item_Stock
+        (
+            item_name VARCHAR(50)    NOT NULL,
+            amount    DECIMAL(10, 4) NOT NULL,
+            serial    INT            NOT NULL,
+            created   TIMESTAMP      NOT NULL DEFAULT now(),
+            PRIMARY KEY (item_name, serial),
+            FOREIGN KEY (item_name) REFERENCES Items (name)
+        );
+      </script></code></pre>
     </section>
+
+    <section>
+      <h3>DAO implementation for event sourcing</h3>
+      <pre class="kotlin"><code class="hljs" data-trim data-line-numbers="1-12|14-19"><script type="text/template">
+      interface ItemStockDao {
+        @SqlUpdate("""
+               INSERT INTO Item_Stock (item_name, serial, amount)
+               VALUES (:name, :serial+1, :amount)""")
+        fun insertItemStock(name: String, serial: Int, amount: BigDecimal): Int
+
+        @SqlQuery("""
+              SELECT
+                item_name AS name, SUM(amount) AS amount, MAX(serial) AS serial
+              FROM Item_Stock WHERE item_name=:name GROUP BY item_name""")
+        fun selectStockAmount(name: String): ItemStock?
+      }
+
+      fun findByName(name: String): ItemStock =
+        db.withHandle<ItemStock, RuntimeException> { handle ->
+          val dao = handle.attach(ItemStockDao::class.java)
+          return@withHandle itemStock = dao.selectStockAmount(name)
+            ?: ItemStockRec(name, BigDecimal.ZERO, 0)
+        }
+			</script></code></pre>
+    </section>
+
     <section>
       <p>Fast lane queries C*Q*RS</p>
     </section>
     <section>
       <p>Update & optimistic locking</p>
-    </section>
-    <section>
-      <p>Update & command pattern</p>
-    </section>
-    <section>
-      <h3>DAO for Item Stock aggregate</h3>
-      <pre class="kotlin"><code class="hljs" data-trim data-line-numbers="|2-5|7-12|34-38|21-31|40-47"><script type="text/template">
-      interface ItemStockDao {
-        @SqlUpdate("""
-          INSERT INTO Item_Stock (item_name, serial, amount)
-          VALUES (:id.itemId.id, :id.serial+1, :amount)""")
-        fun insertItemStock(id: ItemStockAppId, amount: BigDecimal): Int
-
-        @SqlQuery("""
-          SELECT item_name, SUM(amount) AS amount, MAX(serial) AS serial
-          FROM Item_Stock
-          WHERE item_name=:id.id
-          GROUP BY item_name""")
-        fun selectStockAmount(id: ItemAppId): ItemStockRec?
-
-        @SqlQuery("""
-          SELECT item_name, SUM(amount) AS amount, MAX(serial) AS serial
-          FROM Item_Stock
-          WHERE item_name IN (<ids>)
-          GROUP BY item_name""")
-        fun selectStockAmounts(@BindList("ids") ids: Array<String>): List<ItemStockRec>
-
-        @SqlQuery("""
-          SELECT
-            item_name, MAX(serial) AS serial, manufacturers_code, code AS unit_code,
-            u.name AS unit_name, SUM(amount) AS amount
-          FROM Item_Stock its
-          JOIN Items i ON its.item_name = i.name
-          JOIN Item_classes ic ON i.item_class_name = ic.name AND i.item_class_version = ic.version
-          JOIN Units u ON ic.unit = u.code
-          GROUP BY item_name, manufacturers_code, code, u.name
-          ORDER BY item_name""")
-        fun selectStockWithItems(): List<StockWithItemRec>
-      }
-
-      data class ItemStockRec(
-        val itemName: String,
-        val amount: BigDecimal,
-        val serial: Int
-      )
-
-      data class StockWithItemRec(
-        val itemName: String,
-        val serial: Int,
-        val manufacturersCode: String?,
-        val unitCode: String,
-        val unitName: String,
-        val amount: BigDecimal
-      )
-					</script></code></pre>
-    </section>
-    <section>
-      <pre class="kotlin"><code class="hljs" data-trim data-line-numbers="|3-11|5|6|7|8-10|27|30-31|33-36|37-40"><script type="text/template">
-      class ItemStockJdbiRepository(private val db: Jdbi) : ItemStockRepository {
-
-        override fun findByItemId(itemId: ItemId): ItemStock =
-          db.withHandle<ItemStock, RuntimeException> { handle ->
-            val dao = handle.attach(ItemStockDao::class.java)
-            val itemStock = dao.selectStockAmount(itemId.asAppId())
-              ?: ItemStockRec(itemId.asAppId().id, BigDecimal.ZERO, 0)
-            return@withHandle ItemStock(
-              id = ItemStockAppId(itemId.asAppId(), itemStock.serial),
-              amount = itemStock.amount)
-        }
-
-        override fun findByItemIds(itemIds: List<ItemId>): List<ItemStock> =
-          db.withHandle<List<ItemStock>, RuntimeException> { handle ->
-            val dao = handle.attach(ItemStockDao::class.java)
-            val result = dao.selectStockAmounts(itemIds.map { itemId -> itemId.asAppId().id }.toTypedArray())
-            return@withHandle result.map { rec ->
-              ItemStock(
-                  id = ItemStockAppId(
-                      ItemAppId(rec.itemName),
-                      rec.serial
-                  ), amount = rec.amount
-              )
-            }
-          }
-
-        override fun update(itemStock: MutableItemStock) = db.useTransaction<RuntimeException> { handle ->
-          val dao = handle.attach(ItemStockDao::class.java)
-          itemStock.consume { command: MutatingCommand<ItemStock>, itemStockAppId: ItemStockAppId? ->
-            // we use it to increment serial (optimistic lock)
-            val id = itemStockAppId ?: command.base.id.asAppId()
-            when (command) {
-              is ReplenishCommand -> {
-                dao.insertItemStock(command.base.id.asAppId(), command.amount)
-                id.copy(serial = id.serial + 1)
-              }
-              is DeductCommand -> {
-                dao.insertItemStock(command.base.id.asAppId(), -command.amount)
-                id.copy(serial = id.serial + 1)
-              }
-            else -> throw InvalidDataException("Unsupported command ${command.javaClass.name}.")
-            }
-          }
-        }
-      }
-      </script></code></pre>
     </section>
 
     <!-- ----------------------------------------
