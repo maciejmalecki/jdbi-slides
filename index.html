@@ -1,40 +1,442 @@
 <!doctype html>
 <html>
-	<head>
-		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-		<title>reveal.js</title>
+  <title>Free your mind with JDBI</title>
 
-		<link rel="stylesheet" href="dist/reset.css">
-		<link rel="stylesheet" href="dist/reveal.css">
-		<link rel="stylesheet" href="dist/theme/black.css" id="theme">
+  <meta name="description" content="Using explicit SQL mappers in Enterprise Applications">
+  <meta name="author" content="Maciej Małecki">
 
-		<!-- Theme used for syntax highlighted code -->
-		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
-	</head>
-	<body>
-		<div class="reveal">
-			<div class="slides">
-				<section>Slide 1</section>
-				<section>Slide 2</section>
-			</div>
-		</div>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>reveal.js</title>
 
-		<script src="dist/reveal.js"></script>
-		<script src="plugin/notes/notes.js"></script>
-		<script src="plugin/markdown/markdown.js"></script>
-		<script src="plugin/highlight/highlight.js"></script>
-		<script>
-			// More info about initialization & config:
-			// - https://revealjs.com/initialization/
-			// - https://revealjs.com/config/
-			Reveal.initialize({
-				hash: true,
+  <link rel="stylesheet" href="dist/reset.css">
+  <link rel="stylesheet" href="dist/reveal.css">
+  <link rel="stylesheet" href="dist/theme/night.css" id="theme">
+  <link rel="stylesheet" href="css/custom.css">
 
-				// Learn about plugins: https://revealjs.com/plugins/
-				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes ]
-			});
-		</script>
-	</body>
+  <!-- Theme used for syntax highlighted code -->
+  <link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+</head>
+<body>
+<div class="reveal">
+  <div class="slides">
+    <!-- ----------------------------------------
+               Title slide
+    ----------------------------------------- -->
+    <section data-background-image="img/super-mind.jpg" data-background-opacity="0.5">
+      <h3>Free your mind with JDBI</h3>
+      <p>using explicit SQL mappers...</p>
+      <p>...in enterprise applications</p>
+      <p style="font-size: 20px; margin-top: 8em; text-align: right">Maciej Małecki, Architecture Community, Capgemini
+        2021.</p>
+    </section>
+
+    <!-- ----------------------------------------
+               Introduction
+    ----------------------------------------- -->
+    <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+      <h2 data-id="title">Why?</h2>
+      <div class="r-hstack">
+        <img data-id="img" class="pane" src="img/hibernate-logo.png" alt="Hibernate Logo" style="margin: 0 0.8em 0 0.8em;">
+        <div class="r-vstack">
+          <div class="pane bcol0">1: SQL-POJO binding</div>
+          <div class="pane bcol1">2: SQL dialect agnostic</div>
+          <div class="pane bcol2">3: transparent persistence</div>
+        </div>
+      </div>
+    </section>
+
+    <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+      <h2 data-id="title">Transparent persistence</h2>
+      <div class="r-hstack">
+        <div class="r-vstack fragment">
+          <div class="pane bcol0">change detection</div>
+          <div class="pane bcol3">associations</div>
+          <div class="r-hstack">
+            <div class="pane bcol1">n+1</div>
+            <div class="pane bcol2">proxies</div>
+          </div>
+          <div class="pane bcol4">no boundaries</div>
+        </div>
+        <img data-id="img" class="pane" src="img/hibernate-logo.png" alt="Hibernate Logo" style="margin: 0 0.8em 0 0.8em;">
+        <div class="r-vstack fragment">
+          <div class="pane bcol1">fetching strategies</div>
+          <div class="pane bcol2">entity graphs</div>
+          <div class="pane bcol3">stateful session</div>
+        </div>
+      </div>
+      <p class="fragment emph">&#8687;&#8687;&#8687; hidden complexity &#8687;&#8687;&#8687;</p>
+    </section>
+
+    <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+      <h3 data-id="title">What are the SQL mappers?</h3>
+      <div class="r-vstack">
+        <div class="r-hstack">
+          <img class="pane hsmall" src="img/jooq-logo-white.png" alt="JOOQ">
+          <img data-id="jdbi-img" class="pane hsmall" src="img/jdbi.png" alt="JDBI">
+          <img class="pane hsmall" src="img/spring-jdbc-logo.jpg" alt="spring">
+        </div>
+        <div class="r-hstack">
+          <img class="pane" src="img/r2dbc.png" alt="r2dbc">
+          <img class="pane hsmall fragment fade-out" data-fragment-index="2" src="img/jdbc.png" alt="JDBC">
+        </div>
+        <div class="pane bcol0 fragment" data-fragment-index="1">1: SQL-POJO binding</div>
+      </div>
+    </section>
+
+    <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+      <h3 data-id="title">When should I prefer a mapper?</h3>
+      <div class="r-hstack">
+        <div class="r-vstack">
+          <img class="pane hsmall" src="img/jooq-logo-white.png" alt="JOOQ">
+          <img class="pane hsmall" data-id="jdbi-img" src="img/jdbi.png" alt="JDBI">
+          <img class="pane hsmall" src="img/spring-jdbc-logo.jpg" alt="spring">
+        </div>
+        <div>
+          <ul>
+            <li>"read-only" app - dump data on screen</li>
+            <li>"write-only" app - data importers & updaters</li>
+            <li class="fragment" data-fragment-index="1">CQRS</li>
+            <li class="fragment" data-fragment-index="1">event sourcing</li>
+            <li class="fragment" data-fragment-index="2">hexagonal</li>
+            <li class="fragment" data-fragment-index="2">DDD</li>
+            <li class="fragment" data-fragment-index="3">"small" apps of any kind</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ----------------------------------------
+               JDBI Basics
+    ----------------------------------------- -->
+    <section data-auto-animate>
+      <div class="r-hstack">
+        <div class="r-vstack">
+          <div class="pane bcol0">SQL &#8621; POJO mapper</div>
+          <div class="pane bcol1">fluent APIdeclarative API</div>
+          <div class="pane bcol2">... or declarative API</div>
+          <div class="pane bcol3">wraps around JDBC</div>
+        </div>
+        <img data-id="jdbi-img" class="pane hmed" src="img/jdbi.png" alt="JDBI">
+        <div class="r-vstack">
+          <div class="pane bcol4">native SQL</div>
+          <div class="pane bcol3">no limitations</div>
+          <div class="pane bcol2">no fake persistence</div>
+          <div class="pane bcol1">get what you code</div>
+          <div class="pane bcol0">(and nothing more)</div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <h3>JDBI</h3>
+      <p class="small">example config in Spring</p>
+      <pre><code class="hljs" data-trim data-line-numbers><script type="text/template">
+        @Configuration
+        public class JdbiConfiguration {
+          private dataSource: DataSource; // +lombok or constructor stuff
+          @Bean
+          public Jdbi jdbi() {
+            return Jdbi.create(dataSource).installPlugin(SqlObjectPlugin());
+          }
+        }
+      </script></code></pre>
+      <p class="small fragment" data-fragment-index="1">... and the same in Spring/Kotlin</p>
+      <pre class="fragment kotlin" data-fragment-index="1"><code class="hljs" data-trim data-line-numbers><script type="text/template">
+        @Configuration
+        class JdbiConfiguration(private val dataSource: DataSource) {
+          @Bean
+          fun jdbi(): Jdbi = Jdbi.create(dataSource)
+                                 .installPlugin(SqlObjectPlugin())
+                                 .installPlugin(KotlinPlugin())
+                                 .installPlugin(KotlinSqlObjectPlugin())
+        }
+      </script></code></pre>
+    </section>
+
+    <section>
+      <h3>Simple SELECT</h3>
+      <pre><code class="hljs" data-trim data-line-numbers><script type="text/template">
+      public class UserRepository {
+        private final Jdbi jdbi; // <-- inject somehow
+        public List<User> findAllUsers() {
+          return jdbi.withHandle(handle ->
+            handle.createQuery("SELECT id, name FROM users ORDER BY name")
+                  .mapToBean(User.class)
+                  .list();
+        }
+      }
+      </script></code></pre>
+
+      <p class="small fragment" data-fragment-index="1">... and in Kotlin</p>
+      <pre class="fragment kotlin" data-fragment-index="1"><code class="hljs" data-trim data-line-numbers><script type="text/template">
+      class UserRepository(private val jdbi: Jdbi) {
+        fun findAllUsers(): List<User> =
+          jdbi.withHandle<List<User>, RuntimeException> { handle ->
+            handle.createQuery("SELECT id, name FROM users ORDER BY name")
+                  .mapToBean(User.class)
+                  .list();
+      }
+      </script></code></pre>
+    </section>
+
+    <section>
+      <h3>Simple INSERT</h3>
+      <pre><code class="hljs" data-trim data-line-numbers><script type="text/template">
+        int count = handle.createUpdate(
+                      "INSERT INTO users(id, name) VALUES (:id, :name)")
+                      .bind("id", 5)
+                      .bind("name", "foo")
+                      .execute();
+      </script></code></pre>
+      <p class="small fragment" data-fragment-index="1">or simply</p>
+      <pre class="fragment" data-fragment-index="1"><code class="hljs" data-trim data-line-numbers><script type="text/template">
+        int count = handle.createUpdate(
+                      "INSERT INTO users(id, name) VALUES (?, ?)", 5, "foo")
+                      .execute();
+      </script></code></pre>
+      <p class="small fragment" data-fragment-index="2">or bean mapped INSERT</p>
+      <pre class="fragment" data-fragment-index="2"><code class="hljs" data-trim data-line-numbers><script type="text/template">
+        int count = handle.createUpdate(
+                      "INSERT INTO users(id, name) VALUES (:id, :name)")
+                      .bindBean(new User(5, "foo")
+                      .execute();
+      </script></code></pre>
+    </section>
+
+    <section>
+      <h3>Result beans</h3>
+      <pre><code class="hljs" data-trim data-line-numbers><script type="text/template">
+        public class User {
+          public User(long id, String name) {
+            // some Java nonsense
+          }
+          // some more nonsense
+        }
+      </script></code></pre>
+      <p class="small fragment" data-fragment-index="1">if names are excluded from the bytecode</p>
+      <pre class="fragment" data-fragment-index="1"><code class="hljs" data-trim data-line-numbers><script type="text/template">
+        public class User {
+          @ConstructorProperties({"id", "name"})
+          public User(long id, String name) {
+            // some Java nonsense
+          }
+          // some more nonsense
+        }
+      </script></code></pre>
+      <p class="small fragment" data-fragment-index="2">... or use Kotlin</p>
+      <pre class="fragment kotlin" data-fragment-index="2"><code class="hljs" data-trim data-line-numbers><script type="text/template">
+        data class User(val id: Long, val name: String)
+      </script></code></pre>
+    </section>
+
+    <!-- ----------------------------------------
+               SQL Objects
+    ----------------------------------------- -->
+    <section>
+      <h3>SQL Object (Kotlin)</h3>
+      <pre class="kotlin"><code class="hljs" data-trim data-line-numbers="|15|2-3|5-6|5-8|10-12"><script type="text/template">
+      interface ManufacturerDao {
+        @SqlQuery("SELECT id, name FROM Manufacturers ORDER BY name")
+        fun selectAll(): List<ManufacturerRec>
+
+        @SqlQuery("SELECT id, name FROM Manufacturers WHERE id=?")
+        fun selectById(id: Long): ManufacturerRec?
+
+        fun getById(id: Long) = selectById(id) ?: NotFoundException()
+
+        @SqlUpdate("INSERT INTO Manufacturers (name) VALUES (:name)")
+        @GetGeneratedKeys("id")
+        fun insert(@BindBean manufacturer: ManufacturerRec): Long
+      }
+
+      data class ManufacturerRec(val id: Long?, val name: String)
+      </script></code></pre>
+    </section>
+
+    <section>
+      <h3>SQL Objects</h3>
+      <pre><code class="hljs kotlin" data-trim data-line-numbers="|2-6|4|5|8-14|10|11-13|16-21"><script type="text/template">
+      class ManufacturerRepository(private val db: Jdbi) {
+        fun findAll(): List<Manufacturer> =
+          db.withHandle<List<Manufacturer>, RuntimeException> { handle ->
+            val dao = handle.attach(ManufacturerDao::class.java)
+            dao.selectAll().map { Manufacturer(it.id, it.name) }
+          }
+
+        fun findById(id: Long): Manufacturer? =
+          db.withHandle<Manufacturer?, RuntimeException> { handle ->
+            val dao = handle.attach(ManufacturerDao::class.java)
+            dao.selectById(id)?.let {
+              Manufacturer(ManufacturerAppId(it.id), it.name)
+            }
+          }
+
+        fun persist(manufacturer: Manufacturer): Manufacturer =
+          db.inTransaction<Manufacturer, RuntimeException> { handle ->
+            val dao = handle.attach(ManufacturerDao::class.java)
+            val id = dao.insert(ManufacturerRec(null, manufacturer.name)
+            Manufacturer(id, manufacturer.name)
+        }
+      }
+      </script></code></pre>
+    </section>
+
+    <section>
+      <h3>Templating</h3>
+      <p class="small">Find by criteria (Devonfw style)</p>
+      <pre class="kotlin"><code class="hljs" data-trim data-line-numbers="|9-13|16-24|16-26"><script type="text/template">
+      @SqlQuery("""
+        SELECT
+          items.name AS name, item_class_name, item_class_version,
+          manufacturer_id, manufacturers.name AS manufacturer_name,
+          manufacturers_code AS code
+        FROM Items
+        LEFT OUTER JOIN Manufacturers ON items.manufacturer_id = manufacturers.id
+        WHERE
+          1=1
+          <if(name)>AND items.name LIKE :name<endif>
+          <if(code)>AND manufacturers_code LIKE :code<endif>
+          <if(ids)>AND manufacturer_id IN (<ids>)<endif>
+          <if(itemClassIds)>AND item_class_name IN (<itemClassIds>)<endif>
+        ORDER BY name"""
+      )
+      @DefineNamedBindings
+      @UseStringTemplateEngine
+      fun selectItemsByCriteria(
+        @BindBean criteria: ItemSearchCriteria,
+        @BindList("manufacturerIds", onEmpty = BindList.EmptyHandling.NULL_VALUE)
+          ids: List<Long>?,
+        @BindList("itemClassIds", onEmpty = BindList.EmptyHandling.NULL_VALUE)
+          itemClassIds: List<String>?
+      ): List<ItemWithManufacturerRec>
+
+      data class ItemSearchCriteria(val name: String?, val code: String?)
+			</script></code></pre>
+    </section>
+
+    <!-- ----------------------------------------
+                   Replace ORM?
+    ----------------------------------------- -->
+    <section>
+      <h1>what if I can replace ORM completely?</h1>
+    </section>
+
+    <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
+      <div class="r-vstack">
+        <div data-id="arch-infra"
+             style="background-color: #FFFFFF; width: 15em; height: 1.5em;"></div>
+        <p class="small">&darr;</p>
+        <div data-id="arch-app"
+             style="background-color: #FF55FF; width: 15em; height: 1.5em;"></div>
+        <p class="small">&darr;</p>
+        <div data-id="arch-domain"
+             style="background-color: #55FFFF; width: 15em; height: 1.5em;"></div>
+        <p class="small">&darr;</p>
+        <img data-id="arch-db" src="img/db.jpg" alt="db" style="height: 6em;">
+      </div>
+    </section>
+
+    <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)" data-transition="fade">
+      <div class="r-hstack">
+        <div class="r-stack">
+          <div data-id="arch-infra" style="background-color: #FFFFFF; width: 300px; height: 300px; border-radius: 200px;"></div>
+          <div data-id="arch-app" style="background-color: #FF55FF; width: 200px; height: 200px; border-radius: 200px;"></div>
+          <div data-id="arch-domain" style="background-color: #55FFFF; width: 100px; height: 100px; border-radius: 200px;"></div>
+        </div>
+        <p>&harr;</p>
+        <img data-id="arch-db" src="img/db.jpg" alt="db" style="height: 4em;">
+      </div>
+    </section>
+
+    <section data-background-image="img/clean-architecture.jpeg">
+    </section>
+
+    <!-- ----------------------------------------
+                   Advanced topics:
+          persistence of entities and aggregates
+    ----------------------------------------- -->
+    <section>
+      <h3>Entity & event sourcing</h3>
+      <pre class="kotlin"><code class="hljs" data-trim><script type="text/template">
+      data class ItemStock(val id: String, val serial: Int, val amount: BigDecimal)
+      </script></code></pre>
+      <img src="img/item_stock.png" alt="Item stock" style="height: 100px;">
+      <pre class="fragment"><code class="hljs" data-trim><script type="text/template">
+        CREATE TABLE Item_Stock
+        (
+            item_name VARCHAR(50)    NOT NULL,
+            amount    DECIMAL(10, 4) NOT NULL,
+            serial    INT            NOT NULL,
+            created   TIMESTAMP      NOT NULL DEFAULT now(),
+            PRIMARY KEY (item_name, serial),
+            FOREIGN KEY (item_name) REFERENCES Items (name)
+        );
+      </script></code></pre>
+    </section>
+
+    <section>
+      <h3>DAO implementation for event sourcing</h3>
+      <pre class="kotlin"><code class="hljs" data-trim data-line-numbers="1-12|14-19"><script type="text/template">
+      interface ItemStockDao {
+        @SqlUpdate("""
+               INSERT INTO Item_Stock (item_name, serial, amount)
+               VALUES (:name, :serial+1, :amount)""")
+        fun insertItemStock(name: String, serial: Int, amount: BigDecimal): Int
+
+        @SqlQuery("""
+              SELECT
+                item_name AS name, SUM(amount) AS amount, MAX(serial) AS serial
+              FROM Item_Stock WHERE item_name=:name GROUP BY item_name""")
+        fun selectStockAmount(name: String): ItemStock?
+      }
+
+      fun findByName(name: String): ItemStock =
+        db.withHandle<ItemStock, RuntimeException> { handle ->
+          val dao = handle.attach(ItemStockDao::class.java)
+          return@withHandle itemStock = dao.selectStockAmount(name)
+            ?: ItemStockRec(name, BigDecimal.ZERO, 0)
+        }
+			</script></code></pre>
+    </section>
+
+    <section>
+      <p>Fast lane queries C*Q*RS</p>
+    </section>
+    <section>
+      <p>Update & optimistic locking</p>
+    </section>
+
+    <!-- ----------------------------------------
+                   Summary and Q&A
+    ----------------------------------------- -->
+    <section>
+      <p>Link to repo</p>
+      <p>Link to slides</p>
+    </section>
+  </div>
+</div>
+
+<script src="dist/reveal.js"></script>
+<script src="plugin/notes/notes.js"></script>
+<script src="plugin/markdown/markdown.js"></script>
+<script src="plugin/highlight/highlight.js"></script>
+<script>
+    // More info about initialization & config:
+    // - https://revealjs.com/initialization/
+    // - https://revealjs.com/config/
+    Reveal.initialize({
+        width: 1200,
+        hash: true,
+        navigationMode: 'linear',
+        slideNumber: 'c/t',
+        // Learn about plugins: https://revealjs.com/plugins/
+        plugins: [RevealMarkdown, RevealHighlight, RevealNotes]
+    });
+</script>
+</body>
 </html>
