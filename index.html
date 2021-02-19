@@ -125,13 +125,13 @@
         </div>
         <div>
           <ul>
-            <li>"read-only" app - dump data on screen</li>
-            <li>"write-only" app - data importers & updaters</li>
-            <li class="fragment" data-fragment-index="1">CQRS</li>
-            <li class="fragment" data-fragment-index="1">event sourcing</li>
-            <li class="fragment" data-fragment-index="2">hexagonal</li>
-            <li class="fragment" data-fragment-index="2">DDD</li>
-            <li class="fragment" data-fragment-index="3">"small" apps of any kind</li>
+            <li>&#129477;<span class="fragment" data-fragment-index="1">, hexagonal</span></li>
+            <li class="fragment" data-fragment-index="2">"read-only" app - dump data on screen</li>
+            <li class="fragment" data-fragment-index="2">"write-only" app - data importers & updaters</li>
+            <li class="fragment" data-fragment-index="3">CQRS</li>
+            <li class="fragment" data-fragment-index="3">event sourcing</li>
+            <li class="fragment" data-fragment-index="4">DDD</li>
+            <li class="fragment" data-fragment-index="5">"small" apps of any kind</li>
           </ul>
         </div>
       </div>
@@ -265,7 +265,7 @@
                SQL Objects
     ----------------------------------------- -->
     <section>
-      <h3>SQL Object (Kotlin)</h3>
+      <h3>SQL Object</h3>
       <pre class="kotlin"><code class="hljs" data-trim data-line-numbers="|15|2-3|5-6|5-8|10-12"><script type="text/template">
       interface ManufacturerDao {
         @SqlQuery("SELECT id, name FROM Manufacturers ORDER BY name")
@@ -286,7 +286,7 @@
     </section>
 
     <section>
-      <h3>SQL Objects</h3>
+      <h3>SQL Objects / Transactions</h3>
       <pre><code class="hljs kotlin" data-trim data-line-numbers="|2-6|4|5|8-14|16-21"><script type="text/template">
       class ManufacturerRepository(private val db: Jdbi) {
         fun findAll(): List<Manufacturer> =
