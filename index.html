@@ -71,7 +71,7 @@
         <img data-id="img" class="pane" src="img/hibernate-logo.png" alt="Hibernate Logo" style="margin: 0 0.8em 0 0.8em;">
         <div class="r-vstack">
           <div class="pane bcol0">1: SQL-POJO binding</div>
-          <div class="pane bcol1">2: SQL dialect agnostic</div>
+          <div class="pane bcol1">2: SQL dialect-agnostic</div>
           <div class="pane bcol2">3: transparent persistence</div>
         </div>
       </div>
@@ -116,7 +116,7 @@
     </section>
 
     <section data-auto-animate data-auto-animate-easing="cubic-bezier(0.770, 0.000, 0.175, 1.000)">
-      <h3 data-id="title">When should I prefer a mapper?</h3>
+      <h3 data-id="title">When should I consider a mapper?</h3>
       <div class="r-hstack">
         <div class="r-vstack">
           <img class="pane hsmall" src="img/jooq-logo-white.png" alt="JOOQ">
@@ -125,13 +125,12 @@
         </div>
         <div>
           <ul>
-            <li>&#129477;<span class="fragment" data-fragment-index="1">, hexagonal</span></li>
-            <li class="fragment" data-fragment-index="2">"read-only" app - dump data on screen</li>
-            <li class="fragment" data-fragment-index="2">"write-only" app - data importers & updaters</li>
-            <li class="fragment" data-fragment-index="3">CQRS</li>
-            <li class="fragment" data-fragment-index="3">event sourcing</li>
-            <li class="fragment" data-fragment-index="4">DDD</li>
-            <li class="fragment" data-fragment-index="5">"small" apps of any kind</li>
+            <li>&#129477;, hexagonal, DDD</li>
+            <li class="fragment" data-fragment-index="1">"read-only" app - dump data on screen</li>
+            <li class="fragment" data-fragment-index="1">"write-only" app - data importers & updaters</li>
+            <li class="fragment" data-fragment-index="2">CQRS</li>
+            <li class="fragment" data-fragment-index="2">event sourcing</li>
+            <li class="fragment" data-fragment-index="3">"small" apps of any kind</li>
           </ul>
         </div>
       </div>
@@ -187,7 +186,7 @@
 
     <section>
       <h3>Simple SELECT</h3>
-      <pre><code class="hljs" data-trim data-line-numbers><script type="text/template">
+      <pre><code class="hljs" data-trim data-line-numbers="|4-7"><script type="text/template">
       public class UserRepository {
         private final Jdbi jdbi; // <-- inject somehow
         public List<User> findAllUsers() {
@@ -199,8 +198,8 @@
       }
       </script></code></pre>
 
-      <p class="small fragment" data-fragment-index="1">... and in Kotlin</p>
-      <pre class="fragment kotlin" data-fragment-index="1"><code class="hljs" data-trim data-line-numbers><script type="text/template">
+      <p class="small fragment">... and in Kotlin</p>
+      <pre class="fragment kotlin"><code class="hljs" data-trim data-line-numbers><script type="text/template">
       class UserRepository(private val jdbi: Jdbi) {
         fun findAllUsers(): List<User> =
           jdbi.withHandle<List<User>, RuntimeException> { handle ->
@@ -357,7 +356,8 @@
     <section>
       <h3>Entity & event sourcing</h3>
       <pre class="kotlin"><code class="hljs" data-trim><script type="text/template">
-      data class ItemStock(val id: String, val serial: Int, val amount: BigDecimal)
+      data class ItemStock(
+        val itemName: String, val serial: Int, val amount: BigDecimal)
       </script></code></pre>
       <img src="img/item_stock.png" alt="Item stock" style="height: 100px;">
       <pre><code class="hljs" data-trim><script type="text/template">
