@@ -274,7 +274,7 @@
         @SqlQuery("SELECT id, name FROM Manufacturers WHERE id=?")
         fun selectById(id: Long): ManufacturerRec?
 
-        fun getById(id: Long) = selectById(id) ?: NotFoundException()
+        fun getById(id: Long) = selectById(id) ?: throw NotFoundException()
 
         @SqlUpdate("INSERT INTO Manufacturers (name) VALUES (:name)")
         @GetGeneratedKeys("id")
